@@ -54,15 +54,17 @@
                         responseError: function (rejection)
                         {
                             if (rejection.status === 401 && !rejection.config.ignoreAuthModule) {
+                                var deferred = $q.defer();
                                 if (!authServiceConfig.loginFailureSignaledWith401 || !rejection.config.url.match(authServiceConfig.authUrl)) {
-                                    var deferred = $q.defer();
                                     httpBuffer.append(rejection.config, deferred);
-                                    $rootScope.$broadcast('event:auth-loginRequired', rejection);
-                                    return deferred.promise;
+                                    if (1 === httpBuffer.getBufferLength()) {
+                                        $rootScope.$broadcast('event:auth-credentialsRequired', rejection);
+                                    }
                                 } else {
                                     $rootScope.$broadcast('event:auth-loginFailed', rejection);
-                                    $rootScope.$broadcast('event:auth-loginRequired', rejection);
                                 }
+                                $rootScope.$broadcast('event:auth-loginRequired', rejection);
+                                return $q.reject(rejection);
                             } else if (rejection.status === 0) {
                                 return $q.defer().promise;
                             }
