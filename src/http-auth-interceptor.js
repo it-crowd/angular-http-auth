@@ -60,14 +60,18 @@
                                     if (1 === httpBuffer.getBufferLength()) {
                                         $rootScope.$broadcast('event:auth-credentialsRequired', rejection);
                                     }
+                                    $rootScope.$broadcast('event:auth-loginRequired', rejection);
+                                    return deferred.promise;
                                 } else {
                                     $rootScope.$broadcast('event:auth-loginFailed', rejection);
+                                    $rootScope.$broadcast('event:auth-loginRequired', rejection);
+                                    return $q.reject(rejection);
                                 }
-                                $rootScope.$broadcast('event:auth-loginRequired', rejection);
-                                return $q.reject(rejection);
+
                             } else if (rejection.status === 0) {
                                 return $q.defer().promise;
                             }
+
                             // otherwise, default behaviour
                             return $q.reject(rejection);
                         }
